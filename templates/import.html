@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Import Data - Agen Penjualan AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-upload"></i> Import Data CSV
+            </h1>
+            <p class="lead text-muted">Upload file CSV baru untuk memperbarui analisis penjualan</p>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Current Data Info -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Data Saat Ini</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Tanggal Data:</strong></p>
+                            <p class="text-primary">{{ current_data.date }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Total Baris:</strong></p>
+                            <p class="text-primary">{{ current_data.total_rows }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>File:</strong></p>
+                            <p class="text-primary">daily_sales.csv</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-cloud-upload"></i> Upload File CSV Baru</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="mb-4">
+                            <label for="file" class="form-label">Pilih File CSV</label>
+                            <input class="form-control form-control-lg" type="file" id="file" name="file" accept=".csv"
+                                required>
+                            <div class="form-text">
+                                File harus berformat .csv dengan kolom yang sesuai (maksimal 16MB)
+                            </div>
+                        </div>
+
+                        <!-- File Preview -->
+                        <div id="filePreview" class="mb-3" style="display: none;">
+                            <div class="alert alert-secondary">
+                                <strong>File dipilih:</strong> <span id="fileName"></span><br>
+                                <strong>Ukuran:</strong> <span id="fileSize"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-upload"></i> Upload dan Ganti Data
+                            </button>
+                            <a href="/overview" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Batal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-question-circle"></i> Format File CSV</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>File CSV harus memiliki kolom berikut:</strong></p>
+                    <ul>
+                        <li><code>date</code> - Tanggal transaksi (YYYY-MM-DD)</li>
+                        <li><code>region</code> atau <code>city</code> - Nama wilayah</li>
+                        <li><code>product</code> atau <code>product_line</code> - Nama produk</li>
+                        <li><code>total_sales</code> atau <code>sales</code> - Total penjualan</li>
+                        <li><code>target_daily</code> - Target harian</li>
+                        <li><code>sales_yesterday</code> - Penjualan kemarin</li>
+                        <li><code>avg_7d_sales</code> - Rata-rata 7 hari</li>
+                        <li><code>delta_vs_yesterday</code> - % perubahan vs kemarin</li>
+                        <li><code>delta_vs_target</code> - % selisih vs target</li>
+                        <li><code>day_name</code> - Nama hari</li>
+                        <li><code>is_weekend</code> - Boolean (True/False)</li>
+                    </ul>
+
+                    <div class="alert alert-warning mt-3">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Perhatian:</strong>
+                        <ul class="mb-0">
+                            <li>File lama akan di-backup sebagai <code>daily_sales_backup.csv</code></li>
+                            <li>Setelah upload, semua halaman (Ringkasan, Insight AI, Peringatan) akan otomatis
+                                menggunakan data baru</li>
+                            <li>Pastikan format CSV sesuai agar tidak terjadi error</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File preview
+    document.getElementById('file').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(2) + ' KB';
+            document.getElementById('filePreview').style.display = 'block';
+        }
+    });
+
+    // Form validation
+    document.getElementById('uploadForm').addEventListener('submit', function (e) {
+        const fileInput = document.getElementById('file');
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            alert('Pilih file CSV terlebih dahulu!');
+            return false;
+        }
+
+        const file = fileInput.files[0];
+        if (!file.name.endsWith('.csv')) {
+            e.preventDefault();
+            alert('File harus berformat .csv!');
+            return false;
+        }
+
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengupload...';
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

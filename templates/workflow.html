@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}How It Works - AI Sales Agent{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4">
+                <i class="bi bi-diagram-3"></i> {{ data.title }}
+            </h1>
+            <p class="lead text-muted">{{ data.description }}</p>
+        </div>
+    </div>
+
+    <!-- Workflow Steps -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Agent Workflow</h2>
+        </div>
+
+        {% for step in data.steps %}
+        <div class="col-md-6 mb-4">
+            <div class="card workflow-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="workflow-icon me-3">
+                            <span class="step-number">{{ step.number }}</span>
+                            <span class="step-emoji">{{ step.icon }}</span>
+                        </div>
+                        <div>
+                            <h4 class="card-title">{{ step.title }}</h4>
+                            <p class="card-text">{{ step.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Rule Logic Explanation -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Rule-Based Evaluation Logic</h2>
+            <p class="text-muted mb-4">
+                Each region-product combination is evaluated against 4 rule categories.
+                The worst status determines the final classification.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Rule Category</th>
+                            <th class="text-success">✅ OK</th>
+                            <th class="text-warning">⚠️ WARNING</th>
+                            <th class="text-danger">🚨 CRITICAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in data.rules %}
+                        <tr>
+                            <td><strong>{{ rule.category }}</strong></td>
+                            <td>{{ rule.ok }}</td>
+                            <td>{{ rule.warning }}</td>
+                            <td>{{ rule.critical }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Technology Stack</h2>
+            <div class="row">
+                {% for tech in data.tech_stack %}
+                <div class="col-md-4 mb-3">
+                    <div class="card tech-card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-code-square"></i> {{ tech.name }}
+                            </h5>
+                            <p class="card-text text-muted">{{ tech.purpose }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Flow Diagram -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Data Flow</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="flow-box bg-primary text-white">
+                                📊 CSV Data<br>
+                                <small>daily_sales.csv</small>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="flow-box bg-info text-white">
+                                🔍 Rule Engine<br>
+                                <small>agent_engine.py</small>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="flow-box bg-success text-white">
+                                🤖 AI Insight<br>
+                                <small>LLM Generation</small>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="flow-box bg-warning text-dark">
+                                📢 Dashboard<br>
+                                <small>Flask Web UI</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Features -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">Key Features</h2>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="feature-box">
+                        <i class="bi bi-lightning-fill text-warning"></i>
+                        <h5>Autonomous Monitoring</h5>
+                        <p>Automatically evaluates sales performance daily without manual intervention</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="feature-box">
+                        <i class="bi bi-graph-up text-success"></i>
+                        <h5>Multi-Dimensional Analysis</h5>
+                        <p>Compares against targets, yesterday's performance, and 7-day trends</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="feature-box">
+                        <i class="bi bi-chat-dots text-primary"></i>
+                        <h5>Natural Language Insights</h5>
+                        <p>AI generates human-readable summaries and recommendations</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="feature-box">
+                        <i class="bi bi-shield-check text-info"></i>
+                        <h5>Explainable Rules</h5>
+                        <p>Every alert is backed by clear, interpretable business logic</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="/overview" class="btn btn-primary btn-lg">
+                <i class="bi bi-speedometer2"></i> Go to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .workflow-card {
+        border-left: 4px solid #0d6efd;
+        transition: transform 0.2s;
+    }
+
+    .workflow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .workflow-icon {
+        text-align: center;
+    }
+
+    .step-number {
+        display: block;
+        background: #0d6efd;
+        color: white;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-emoji {
+        display: block;
+        font-size: 2rem;
+    }
+
+    .tech-card {
+        border-top: 3px solid #0d6efd;
+        height: 100%;
+    }
+
+    .flow-diagram {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 2rem 0;
+    }
+
+    .flow-step {
+        display: flex;
+        align-items: center;
+    }
+
+    .flow-box {
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 150px;
+        font-weight: 500;
+    }
+
+    .flow-arrow {
+        font-size: 2rem;
+        margin: 0 1rem;
+        color: #6c757d;
+    }
+
+    .feature-box {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .feature-box i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-box h5 {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-box p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .flow-diagram {
+            flex-direction: column;
+        }
+
+        .flow-arrow {
+            transform: rotate(90deg);
+            margin: 1rem 0;
+        }
+    }
+</style>
+{% endblock %}

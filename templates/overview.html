@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Ringkasan - Agen Penjualan AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-speedometer2"></i> Dashboard Ringkasan Penjualan
+            </h1>
+            <p class="lead text-muted">{{ data.day_name }}, {{ data.date }}</p>
+        </div>
+    </div>
+
+    <!-- Overall Status Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-{{ data.status_class }} status-banner" role="alert">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="alert-heading mb-1">
+                            {% if data.overall_status == 'OK' %}
+                            <i class="bi bi-check-circle-fill"></i> Semua Sistem Normal
+                            {% elif data.overall_status == 'WARNING' %}
+                            <i class="bi bi-exclamation-triangle-fill"></i> Status Peringatan
+                            {% else %}
+                            <i class="bi bi-x-circle-fill"></i> Masalah Kritis Terdeteksi
+                            {% endif %}
+                        </h3>
+                        <p class="mb-0">
+                            {% if data.overall_status == 'OK' %}
+                            Kinerja sehat. Tidak ada tindakan mendesak diperlukan.
+                            {% elif data.overall_status == 'WARNING' %}
+                            Beberapa masalah terdeteksi. Pemantauan ketat direkomendasikan.
+                            {% else %}
+                            Perhatian segera diperlukan. Tinjau peringatan kritis.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-{{ data.status_class }} status-badge">
+                            {{ data.overall_status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <!-- Total Sales -->
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="bi bi-currency-dollar"></i> Total Penjualan
+                    </h6>
+                    <h2 class="card-title mb-1">{{ data.total_sales_formatted }}</h2>
+                    <p class="card-text">
+                        <span
+                            class="badge {% if data.delta_vs_yesterday >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ data.delta_vs_yesterday|signed_percentage }} vs kemarin
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Target -->
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="bi bi-bullseye"></i> Target Harian
+                    </h6>
+                    <h2 class="card-title mb-1">{{ data.total_target_formatted }}</h2>
+                    <p class="card-text">
+                        <span class="text-muted">Target portofolio</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement -->
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="bi bi-graph-up-arrow"></i> Pencapaian
+                    </h6>
+                    <h2 class="card-title mb-1">{{ data.portfolio_achievement|percentage }}</h2>
+                    <p class="card-text">
+                        <span
+                            class="{% if data.portfolio_achievement >= 100 %}text-success{% elif data.portfolio_achievement >= 90 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ data.gap_formatted }} {{ 'di atas' if data.gap_direction == 'above' else 'di bawah' }}
+                            target
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performer -->
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <i class="bi bi-star-fill"></i> Performa Terbaik
+                    </h6>
+                    <h5 class="card-title mb-1">{{ data.top_performer_text }}</h5>
+                    <p class="card-text">
+                        <span class="text-muted">Wilayah-produk terbaik</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Summary -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-danger">{{ data.critical_count }}</h1>
+                    <p class="card-text">
+                        <i class="bi bi-exclamation-octagon-fill text-danger"></i>
+                        <strong>Masalah Kritis</strong>
+                    </p>
+                    {% if data.critical_count > 0 %}
+                    <a href="/alerts" class="btn btn-danger btn-sm">Lihat Detail</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-warning">{{ data.warning_count }}</h1>
+                    <p class="card-text">
+                        <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                        <strong>Peringatan</strong>
+                    </p>
+                    {% if data.warning_count > 0 %}
+                    <a href="/alerts" class="btn btn-warning btn-sm">Lihat Detail</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-success">{{ data.ok_count }}</h1>
+                    <p class="card-text">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Berkinerja Baik</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning-fill"></i> Aksi Cepat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="/insight" class="btn btn-primary">
+                            <i class="bi bi-lightbulb"></i> Lihat Insight Harian AI
+                        </a>
+                        <a href="/alerts" class="btn btn-warning">
+                            <i class="bi bi-exclamation-triangle"></i> Tinjau Semua Peringatan
+                        </a>
+                        <a href="/workflow" class="btn btn-info">
+                            <i class="bi bi-diagram-3"></i> Pelajari Cara Kerjanya
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

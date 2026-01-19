@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts & Issues - AI Sales Agent{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-exclamation-triangle"></i> Alerts & Issues
+            </h1>
+            <p class="lead text-muted">{{ data.date }} - {{ data.total_count }} flagged items</p>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h2 class="text-danger">{{ data.critical_count }}</h2>
+                    <p class="mb-0"><i class="bi bi-exclamation-octagon-fill"></i> Critical</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h2 class="text-warning">{{ data.warning_count }}</h2>
+                    <p class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Warning</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h2 class="text-info">{{ data.total_count }}</h2>
+                    <p class="mb-0"><i class="bi bi-list-ul"></i> Total Alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts List -->
+    <div class="row">
+        <div class="col-12">
+            {% if data.alerts %}
+            {% for alert in data.alerts %}
+            <div class="card alert-card mb-3 border-{{ alert.severity_class }}">
+                <div class="card-header bg-{{ alert.severity_class }} text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            {{ alert.icon }} {{ alert.region }} - {{ alert.product }}
+                        </h5>
+                        <span class="badge bg-white text-{{ alert.severity_class }}">
+                            {{ alert.severity }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="text-muted mb-2">Issue Description:</h6>
+                            <p class="mb-3">{{ alert.issue_description }}</p>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <p class="mb-1"><strong>Actual Sales:</strong></p>
+                                    <p class="text-primary">{{ alert.total_sales_formatted }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="mb-1"><strong>Target:</strong></p>
+                                    <p class="text-muted">{{ alert.target_daily_formatted }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="metrics-box">
+                                <div class="metric-item">
+                                    <span class="metric-label">vs Target:</span>
+                                    <span
+                                        class="metric-value {% if alert.delta_vs_target >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ alert.delta_vs_target|signed_percentage }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">vs Yesterday:</span>
+                                    <span
+                                        class="metric-value {% if alert.delta_vs_yesterday >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ alert.delta_vs_yesterday|signed_percentage }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Recommendations -->
+                    <div class="alert alert-light mt-3 mb-0">
+                        <strong><i class="bi bi-lightbulb"></i> Recommended Action:</strong>
+                        {% if alert.severity == 'CRITICAL' %}
+                        Regional manager should contact this location immediately to investigate root cause.
+                        {% else %}
+                        Monitor closely and review for known factors (promotions, competitor activity).
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Empty State -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3">No Issues Detected</h3>
+                    <p class="text-muted">All regions and products are performing within acceptable ranges.</p>
+                    <a href="/overview" class="btn btn-primary mt-3">
+                        <i class="bi bi-speedometer2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    {% if data.alerts %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="/overview" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="/insight" class="btn btn-primary">
+                <i class="bi bi-lightbulb"></i> View AI Insight
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .alert-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .alert-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .metrics-box {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .metric-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .metric-item:last-child {
+        border-bottom: none;
+    }
+
+    .metric-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .metric-value {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Insight Harian AI - Agen Penjualan AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="bi bi-lightbulb"></i> Insight Harian dari AI
+            </h1>
+            <p class="lead text-muted">Analisis penjualan otomatis dan rekomendasi</p>
+        </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <span class="badge bg-{{ data.status_class }} status-badge-large">
+                Status: {{ data.status }}
+            </span>
+        </div>
+    </div>
+
+    <!-- AI Insight Content -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card insight-card">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-robot"></i> Laporan Analis Penjualan AI
+                    </h4>
+                    <small>Dibuat: {{ data.day_name }}, {{ data.date }}</small>
+                </div>
+                <div class="card-body">
+                    <!-- Render AI insight as formatted text -->
+                    <div class="insight-content">
+                        {% autoescape false %}
+                        {{ data.full_text|replace('\n', '<br>')|replace('**', '<strong>')|replace('**', '</strong>') }}
+                        {% endautoescape %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button class="btn btn-outline-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Cetak Laporan
+                </button>
+                <a href="/alerts" class="btn btn-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Lihat Detail Peringatan
+                </a>
+                <a href="/overview" class="btn btn-primary">
+                    <i class="bi bi-speedometer2"></i> Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Summary -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ringkasan Metrik</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Total Penjualan:</strong></p>
+                            <p class="text-primary">{{ summary.total_sales|currency }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Target:</strong></p>
+                            <p class="text-muted">{{ summary.total_target|currency }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Pencapaian:</strong></p>
+                            <p
+                                class="{% if summary.portfolio_achievement >= 100 %}text-success{% else %}text-danger{% endif %}">
+                                {{ summary.portfolio_achievement|percentage }}
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Masalah:</strong></p>
+                            <p class="text-warning">
+                                {{ summary.critical_count }} Kritis, {{ summary.warning_count }} Peringatan
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .insight-content {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.8;
+        font-size: 1.05rem;
+        white-space: pre-wrap;
+    }
+
+    .insight-card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    }
+
+    .status-badge-large {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+    }
+
+    @media print {
+
+        .btn,
+        nav,
+        footer {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
